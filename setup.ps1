@@ -16,8 +16,7 @@ if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
         Invoke-RestMethod https://github.com/YisusChrist/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -o $PROFILE
         Write-Host "The profile @ [$PROFILE] has been created."
         write-host "if you want to add any persistent components, please do so at
-        [$HOME\Documents\PowerShell\Profile.ps1] as there is an updater in the installed profile 
-        which uses the hash to update the profile and will lead to loss of changes"
+        [$HOME\Documents\PowerShell\Profile.ps1] as there is an updater in the installed profile which uses the hash to update the profile and will lead to loss of changes."
     }
     catch {
         throw $_.Exception.Message
@@ -28,9 +27,7 @@ else {
     Get-Item -Path $PROFILE | Move-Item -Destination oldprofile.ps1 -Force
     Invoke-RestMethod https://github.com/YisusChrist/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
     Write-Host "The profile @ [$PROFILE] has been created and old profile removed."
-    write-host "Please back up any persistent components of your old profile to [$HOME\Documents\PowerShell\Profile.ps1]
-         as there is an updater in the installed profile which uses the hash to update the profile 
-         and will lead to loss of changes"
+    write-host "Please back up any persistent components of your old profile to [$HOME\Documents\PowerShell\Profile.ps1] as there is an updater in the installed profile which uses the hash to update the profile and will lead to loss of changes."
 }
 & $profile
 
