@@ -122,7 +122,8 @@ Set-Alias -Name vim -Value $EDITOR
 
 function lsd_custom { lsd --group-directories-first $args }
 
-function ls { lsd_custom -Option AllScope }
+Set-Alias ls 'lsd_custom' -Option AllScope
+
 function ll { lsd_custom -l }
 function instaloader_custom { instaloader --login=__pole_399188__ --no-profile-pic --no-metadata-json --no-compress-json --no-captions --filename-pattern="{filename}" --highlights --no-video-thumbnails --sanitize-paths $args }
 
