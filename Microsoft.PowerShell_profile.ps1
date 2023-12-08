@@ -2,9 +2,8 @@ oh-my-posh init pwsh | Invoke-Expression
 oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\night-owl.omp.json" | Invoke-Expression
 
 # Import the Chocolatey Profile that contains the necessary code to enable
-# tab-completions to function for `choco`.
-# Be aware that if you are missing these lines from your profile, tab completion
-# for `choco` will not function.
+# tab-completions to function for `choco`. Be aware that if you are missing
+# these lines from your profile, tab completion for `choco` will not function.
 # See https://ch0.co/tab-completion for details.
 $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 if (Test-Path($ChocolateyProfile)) {
@@ -53,7 +52,7 @@ function update-profile {
         Write-Error "unable to check for `$profile updates"
     }
     Remove-Variable @("newhash", "oldhash", "url")
-    Remove-Item  "$env:temp/Microsoft.PowerShell_profile.ps1"
+    Remove-Item "$env:temp/Microsoft.PowerShell_profile.ps1"
 }
 
 # Make it easy to edit this profile once it's installed
@@ -65,7 +64,6 @@ function Edit-Profile {
         code $profile.CurrentUserAllHosts
     }
 }
-
 
 # Useful shortcuts for traversing directories
 function cd... { Set-Location ..\.. }
@@ -90,6 +88,7 @@ Function Test-CommandExists {
     Catch { Write-Host "$command does not exist"; RETURN $false }
     Finally { $ErrorActionPreference = $oldPreference }
 }
+
 #
 # Aliases
 #
@@ -163,6 +162,6 @@ function find-file($name) {
 function clist { choco list }
 function subl { C:\Program Files\Sublime Text\sublime_text.exe }
 
-# Set-Alias e 'exit'
+function e { exit }
 
 winfetch
