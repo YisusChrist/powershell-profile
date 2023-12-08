@@ -160,8 +160,9 @@ function find-file($name) {
 }
 
 function clist { choco list }
-function subl { C:\Program Files\Sublime Text\sublime_text.exe }
 
 function e { exit }
+
+Set-Alias subl 'C:\Program Files\Sublime Text\sublime_text.exe'
 
 winfetch
