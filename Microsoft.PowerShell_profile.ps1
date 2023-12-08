@@ -1,21 +1,3 @@
-#check for updates
-try {
-    $url = "https://raw.githubusercontent.com/YisusChrist/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
-    $oldhash = Get-FileHash $PROFILE
-    Invoke-RestMethod $url -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1"
-    $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
-    if ($newhash -ne $oldhash) {
-        Get-Content "$env:temp/Microsoft.PowerShell_profile.ps1" | Set-Content $PROFILE
-        . $PROFILE
-        return
-    }
-}
-catch {
-    Write-Error "unable to check for `$profile updates"
-}
-Remove-Variable @("newhash", "oldhash", "url")
-Remove-Item  "$env:temp/Microsoft.PowerShell_profile.ps1"
-
 oh-my-posh init pwsh | Invoke-Expression
 oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\night-owl.omp.json" | Invoke-Expression
 
@@ -53,6 +35,26 @@ function admin {
 # with elevated rights. 
 Set-Alias -Name su -Value admin
 Set-Alias -Name sudo -Value admin
+
+#check for updates
+function update-profile {
+    try {
+        $url = "https://raw.githubusercontent.com/YisusChrist/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
+        $oldhash = Get-FileHash $PROFILE
+        Invoke-RestMethod $url -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1"
+        $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
+        if ($newhash -ne $oldhash) {
+            Get-Content "$env:temp/Microsoft.PowerShell_profile.ps1" | Set-Content $PROFILE
+            . $PROFILE
+            return
+        }
+    }
+    catch {
+        Write-Error "unable to check for `$profile updates"
+    }
+    Remove-Variable @("newhash", "oldhash", "url")
+    Remove-Item  "$env:temp/Microsoft.PowerShell_profile.ps1"
+}
 
 # Make it easy to edit this profile once it's installed
 function Edit-Profile {
