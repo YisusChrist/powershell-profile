@@ -164,6 +164,20 @@ function clist { choco list }
 
 function e { exit }
 
+function watch {
+    Param ($command)
+    # Check if the command exists
+    if (-not (Test-CommandExists $command) -OR $null -eq $command) {
+        Write-Error "Command '$command' does not exist"
+        return
+    }
+    while ($true) {
+        $command
+        Start-Sleep -Seconds 1
+        Clear-Host
+    }
+}
+
 Set-Alias subl 'C:\Program Files\Sublime Text\sublime_text.exe'
 
 winfetch
