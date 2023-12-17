@@ -166,6 +166,8 @@ function clist { choco list }
 
 function e { exit }
 
+function cd { z $args }
+
 function watch {
     Param ($command)
     # Check if the command exists
