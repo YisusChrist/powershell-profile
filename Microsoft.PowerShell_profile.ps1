@@ -1,3 +1,4 @@
+# Oh-My-Posh configuration
 oh-my-posh init pwsh | Invoke-Expression
 oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\night-owl.omp.json" | Invoke-Expression
 
@@ -10,6 +11,7 @@ if (Test-Path($ChocolateyProfile)) {
     Import-Module "$ChocolateyProfile"
 }
 
+# Zoxide
 Invoke-Expression (& { (zoxide init powershell | Out-String) })
 
 Import-Module PSReadLine
@@ -66,8 +68,8 @@ function Edit-Profile {
 }
 
 # Useful shortcuts for traversing directories
-function cd... { Set-Location ..\.. }
-function cd.... { Set-Location ..\..\.. }
+function ... { Set-Location ..\.. }
+function .... { Set-Location ..\..\.. }
 
 # Compute file hashes - useful for checking successful downloads 
 function md5 { Get-FileHash -Algorithm MD5 $args }
