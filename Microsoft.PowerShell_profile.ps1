@@ -1,4 +1,4 @@
-# Oh-My-Posh configuration
+# Oh-My-Posh (https://ohmyposh.dev)
 oh-my-posh init pwsh | Invoke-Expression
 oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\night-owl.omp.json" | Invoke-Expression
 
@@ -14,10 +14,20 @@ if (Test-Path($ChocolateyProfile)) {
 # Zoxide
 Invoke-Expression (& { (zoxide init powershell | Out-String) })
 
+# Enable PowerShell Readline module
 Import-Module PSReadLine
 Set-PSReadLineOption -PredictionSource History
 Set-PSReadLineOption -PredictionViewStyle ListView
 Set-PSReadLineOption -EditMode Windows
+
+# Enable tab completion for scoop (https://github.com/Moeologist/scoop-completion)
+Import-Module scoop-completion
+
+# Enable Fast Scoop Search (https://github.com/shilangyu/scoop-search)
+#Invoke-Expression (&scoop-search --hook)
+
+# Enable Stupid Fast Scoop Utils (https://github.com/jewlexx/sfsu)
+Invoke-Expression (&sfsu hook)
 
 # Simple function to start a new elevated process. If arguments are supplied then 
 # a single command is started with admin rights; if not then a new admin instance
