@@ -192,6 +192,4 @@ function watch {
     }
 }
 
-Set-Alias subl 'C:\Program Files\Sublime Text\sublime_text.exe'
-
 winfetch
