@@ -193,4 +193,10 @@ function watch {
     }
 }
 
+# Remove PowerShell alias for curl (Invoke-WebRequest) so that we can use the
+# curl alias for the actual curl executable (https://curl.se/windows)
+if (Test-Path alias:curl) {
+    Remove-Item alias:curl
+}
+
 winfetch
