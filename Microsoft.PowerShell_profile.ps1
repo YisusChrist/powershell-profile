@@ -90,7 +90,8 @@ function sha256 { Get-FileHash -Algorithm SHA256 $args }
 function n { notepad $args }
 
 # Drive shortcuts
-function D: { Set-Location D: }
+function C: { Set-Location C:\ }
+function D: { Set-Location D:\ }
 
 Function Test-CommandExists {
     Param ($command)
