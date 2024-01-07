@@ -177,8 +177,6 @@ function clist { choco list }
 
 function e { exit }
 
-function cd_z { z $args }
-
 function watch {
     Param ($command)
     # Check if the command exists
@@ -201,7 +199,7 @@ if (Test-Path alias:curl) {
 # Replace the PowerShell alias for cd with a function that calls zoxide
 if (Test-Path alias:cd) {
     Remove-Item alias:cd
-    Set-Alias cd 'cd_z'
+    Set-Alias cd 'z'
 }
 
 winfetch
