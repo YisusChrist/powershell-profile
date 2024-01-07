@@ -177,7 +177,7 @@ function clist { choco list }
 
 function e { exit }
 
-function cd { z $args }
+function cd_z { z $args }
 
 function watch {
     Param ($command)
@@ -197,6 +197,11 @@ function watch {
 # curl alias for the actual curl executable (https://curl.se/windows)
 if (Test-Path alias:curl) {
     Remove-Item alias:curl
+}
+# Replace the PowerShell alias for cd with a function that calls zoxide
+if (Test-Path alias:cd) {
+    Remove-Item alias:cd
+    Set-Alias cd 'cd_z'
 }
 
 winfetch
