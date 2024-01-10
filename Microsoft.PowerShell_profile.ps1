@@ -78,6 +78,7 @@ function Edit-Profile {
 }
 
 # Useful shortcuts for traversing directories
+function .. { Set-Location .. }
 function ... { Set-Location ..\.. }
 function .... { Set-Location ..\..\.. }
 
