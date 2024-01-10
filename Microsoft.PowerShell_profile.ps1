@@ -93,7 +93,7 @@ function n { notepad $args }
 function C: { Set-Location C:\ }
 function D: { Set-Location D:\ }
 
-Function Test-CommandExists {
+function Test-CommandExists {
     Param ($command)
     $oldPreference = $ErrorActionPreference
     $ErrorActionPreference = 'SilentlyContinue'
@@ -102,40 +102,7 @@ Function Test-CommandExists {
     Finally { $ErrorActionPreference = $oldPreference }
 }
 
-#
-# Aliases
-#
-# If your favorite editor is not here, add an elseif and ensure that the directory it is installed in exists in your $env:Path
-#
-if (Test-CommandExists nvim) {
-    $EDITOR = 'nvim'
-}
-elseif (Test-CommandExists pvim) {
-    $EDITOR = 'pvim'
-}
-elseif (Test-CommandExists vim) {
-    $EDITOR = 'vim'
-}
-elseif (Test-CommandExists vi) {
-    $EDITOR = 'vi'
-}
-elseif (Test-CommandExists code) {
-    $EDITOR = 'code'
-}
-elseif (Test-CommandExists notepad) {
-    $EDITOR = 'notepad'
-}
-elseif (Test-CommandExists notepad++) {
-    $EDITOR = 'notepad++'
-}
-elseif (Test-CommandExists sublime_text) {
-    $EDITOR = 'sublime_text'
-}
-Set-Alias -Name vim -Value $EDITOR
-
 function lsd_custom { lsd --group-directories-first $args }
-
-Set-Alias ls 'lsd_custom' -Option AllScope
 
 function ll { lsd_custom -l }
 function instaloader_custom { instaloader --login=__pole_399188__ --no-profile-pic --no-metadata-json --no-compress-json --no-captions --filename-pattern="{filename}" --highlights --no-video-thumbnails --sanitize-paths $args }
@@ -191,15 +158,51 @@ function watch {
     }
 }
 
+#
+# Aliases
+#
+# If your favorite editor is not here, add an elseif and ensure that the directory it is installed in exists in your $env:Path
+#
+if (Test-CommandExists nvim) {
+    $EDITOR = 'nvim'
+}
+elseif (Test-CommandExists pvim) {
+    $EDITOR = 'pvim'
+}
+elseif (Test-CommandExists vim) {
+    $EDITOR = 'vim'
+}
+elseif (Test-CommandExists vi) {
+    $EDITOR = 'vi'
+}
+elseif (Test-CommandExists code) {
+    $EDITOR = 'code'
+}
+elseif (Test-CommandExists notepad) {
+    $EDITOR = 'notepad'
+}
+elseif (Test-CommandExists notepad++) {
+    $EDITOR = 'notepad++'
+}
+elseif (Test-CommandExists sublime_text) {
+    $EDITOR = 'sublime_text'
+}
+Set-Alias -Name vim -Value $EDITOR
+
 # Remove PowerShell alias for curl (Invoke-WebRequest) so that we can use the
 # curl alias for the actual curl executable (https://curl.se/windows)
-if (Test-Path alias:curl) {
+if ((Test-Path alias:curl) -and (Test-CommandExists curl)) {
     Remove-Item alias:curl
 }
-# Replace the PowerShell alias for cd with a function that calls zoxide
-if (Test-Path alias:cd) {
+# Replace the PowerShell alias for cd with zoxide
+if ((Test-Path alias:cd) -and (Test-CommandExists z)) {
     Remove-Item alias:cd
-    Set-Alias cd 'z'
+    Set-Alias -Name cd -Value z
+}
+# Replace the PowerShell alias for ls with lsd
+if ((Test-Path alias:ls) -and (Test-CommandExists lsd)) {
+    Remove-Item alias:ls
+    Set-Alias -Name ls -Value lsd_custom -Option AllScope
 }
 
 winfetch
