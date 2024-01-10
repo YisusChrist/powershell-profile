@@ -162,6 +162,9 @@ function watch {
     }
 }
 
+# Function to measure the time it takes to load this profile
+function pprofiler { Measure-Script -Path $PROFILE -Top 5 }
+
 #
 # Aliases
 #
