@@ -103,8 +103,12 @@ function Test-CommandExists {
 }
 
 function lsd_custom { lsd --group-directories-first $args }
-
 function ll { lsd_custom -l }
+function la { lsd_custom -A }
+function lla { lsd_custom -Al }
+function lt { lsd_custom --tree }
+function l. { lsd_custom -ald .* }
+
 function instaloader_custom { instaloader --login=__pole_399188__ --no-profile-pic --no-metadata-json --no-compress-json --no-captions --filename-pattern="{filename}" --highlights --no-video-thumbnails --sanitize-paths $args }
 
 function req2toml { poetry add $( Get-Content requirements.txt ) }
