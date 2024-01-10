@@ -204,5 +204,10 @@ if ((Test-Path alias:ls) -and (Test-CommandExists lsd)) {
     Remove-Item alias:ls
     Set-Alias -Name ls -Value lsd_custom -Option AllScope
 }
+# Replace the PowerShell alias for cat with bat
+if ((Test-Path alias:cat) -and (Test-CommandExists bat)) {
+    Remove-Item alias:cat
+    Set-Alias -Name cat -Value bat
+}
 
 winfetch
