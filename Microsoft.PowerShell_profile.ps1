@@ -1,5 +1,4 @@
 # Oh-My-Posh (https://ohmyposh.dev)
-oh-my-posh init pwsh | Invoke-Expression
 oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\night-owl.omp.json" | Invoke-Expression
 
 # Import the Chocolatey Profile that contains the necessary code to enable
