@@ -1,0 +1,25 @@
+name: PowerShell Script Test
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.1.1
+
+      #- name: Set up PowerShell
+      #  uses: Microsoft/setup-powershell@v1
+
+      - name: Run setup
+        run: |
+          .\setup.ps1
+
+      - name: Run tests
+        run: |
+          .\Test-Installation.ps1
