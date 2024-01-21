@@ -1,6 +1,24 @@
+# Scoop Install
+#
+if (!Get-Command "scoop" -ErrorAction SilentlyContinue) {
+    Write-Host "Installing Scoop..."
+    Set-ExecutionPolicy RemoteSigned -scope CurrentUser
+    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh'))
+}
+
+# Choco install
+#
+if (!Get-Command "choco" -ErrorAction SilentlyContinue) {
+    Write-Host "Installing Choco..."
+    Set-ExecutionPolicy Bypass -Scope Process -Force
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+}
+
 # Create $PROFILE
 #
 # If the file does not exist, create it.
+$url = "https://raw.githubusercontent.com/YisusChrist/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
 if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
     try {
         # Detect PowerShell Edition & Create Profile directories if not exist
@@ -15,9 +33,9 @@ if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
             New-Item -Path $profilePath -ItemType Directory
         }
 
-        Invoke-RestMethod https://github.com/YisusChrist/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
+        Invoke-RestMethod $url -OutFile $PROFILE
         Write-Host "The profile @ [$PROFILE] has been created."
-        write-host "if you want to add any persistent components, please do so at
+        Write-Host "if you want to add any persistent components, please do so at
         [$HOME\Documents\PowerShell\Profile.ps1] as there is an updater in the installed profile which uses the hash to update the profile and will lead to loss of changes."
     }
     catch {
@@ -27,26 +45,11 @@ if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
 # If the file already exists, show the message and do nothing.
 else {
     Get-Item -Path $PROFILE | Move-Item -Destination oldprofile.ps1 -Force
-    Invoke-RestMethod https://github.com/YisusChrist/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
+    Invoke-RestMethod $url -OutFile $PROFILE
     Write-Host "The profile @ [$PROFILE] has been created and old profile removed."
-    write-host "Please back up any persistent components of your old profile to [$HOME\Documents\PowerShell\Profile.ps1] as there is an updater in the installed profile which uses the hash to update the profile and will lead to loss of changes."
+    Write-Host "Please back up any persistent components of your old profile to [$HOME\Documents\PowerShell\Profile.ps1] as there is an updater in the installed profile which uses the hash to update the profile and will lead to loss of changes."
 }
 & $profile
-
-# Scoop Install
-#
-if (!Get-Command "scoop" -ErrorAction SilentlyContinue) {
-    Set-ExecutionPolicy RemoteSigned -scope CurrentUser
-    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh'))
-}
-
-# Choco install
-#
-if (!Get-Command "choco" -ErrorAction SilentlyContinue) {
-    Set-ExecutionPolicy Bypass -Scope Process -Force
-    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-}
 
 # OMP Install
 #
@@ -103,7 +106,6 @@ if ($fontFamilies -notcontains "CaskaydiaCove NF") {
         $destination = (New-Object -ComObject Shell.Application).Namespace(0x14)
         Get-ChildItem -Path ".\CascadiaCode" -Recurse -Filter "*.ttf" | ForEach-Object {
             If (-not(Test-Path "C:\Windows\Fonts\$($_.Name)")) {        
-                # Install font
                 $destination.CopyHere($_.FullName, 0x10)
             }
         }
