@@ -97,3 +97,4 @@ if ($fontFamilies -notcontains "CaskaydiaCove NF") {
 # Terminal Icons Install
 #
 Install-Module -Name Terminal-Icons -Repository PSGallery -Force
+Install-Module -Name PSReadLine -Repository PSGallery -Force
