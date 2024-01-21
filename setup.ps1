@@ -32,8 +32,21 @@ else {
 & $profile
 
 # OMP Install
-#
-winget install -e --accept-source-agreements --accept-package-agreements JanDeDobbeleer.OhMyPosh
+# Check for Scoop
+if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
+    scoop install main/oh-my-posh
+}
+# Check for Choco
+elseif (Get-Command "choco" -ErrorAction SilentlyContinue) {
+    choco install oh-my-posh -y
+}
+# Check for Winget
+elseif (Get-Command "winget" -ErrorAction SilentlyContinue) {
+    winget install -e --accept-source-agreements --accept-package-agreements JanDeDobbeleer.OhMyPosh
+}
+else {
+    Write-Host "Please install Scoop, Choco, or Winget to proceed with the installation."
+}
 
 # Font Install
 # Get all installed font families
