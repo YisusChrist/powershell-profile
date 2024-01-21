@@ -1,4 +1,6 @@
-#If the file does not exist, create it.
+# Create $PROFILE
+#
+# If the file does not exist, create it.
 if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
     try {
         # Detect PowerShell Edition & Create Profile directories if not exist
@@ -31,7 +33,23 @@ else {
 }
 & $profile
 
+# Scoop Install
+#
+if (!Get-Command "scoop" -ErrorAction SilentlyContinue) {
+    Set-ExecutionPolicy RemoteSigned -scope CurrentUser
+    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh'))
+}
+
+# Choco install
+#
+if (!Get-Command "choco" -ErrorAction SilentlyContinue) {
+    Set-ExecutionPolicy Bypass -Scope Process -Force
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+}
+
 # OMP Install
+#
 # Check for Scoop
 if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
     scoop install main/oh-my-posh
@@ -49,6 +67,7 @@ else {
 }
 
 # Font Install
+#
 # Get all installed font families
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
 $fontFamilies = (New-Object System.Drawing.Text.InstalledFontCollection).Families
@@ -74,10 +93,6 @@ if ($fontFamilies -notcontains "CaskaydiaCove NF") {
     Remove-Item -Path ".\CascadiaCode.zip" -Force
 }
 
-
-# Choco install
-#
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
 # Terminal Icons Install
 #
