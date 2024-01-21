@@ -74,23 +74,44 @@ $fontFamilies = (New-Object System.Drawing.Text.InstalledFontCollection).Familie
 
 # Check if CaskaydiaCove NF is installed
 if ($fontFamilies -notcontains "CaskaydiaCove NF") {
-    
-    # Download and install CaskaydiaCove NF
-    $webClient = New-Object System.Net.WebClient
-    $webClient.DownloadFile("https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/CascadiaCode.zip", ".\CascadiaCode.zip")
-
-    Expand-Archive -Path ".\CascadiaCode.zip" -DestinationPath ".\CascadiaCode" -Force
-    $destination = (New-Object -ComObject Shell.Application).Namespace(0x14)
-    Get-ChildItem -Path ".\CascadiaCode" -Recurse -Filter "*.ttf" | ForEach-Object {
-        If (-not(Test-Path "C:\Windows\Fonts\$($_.Name)")) {        
-            # Install font
-            $destination.CopyHere($_.FullName, 0x10)
+    # Attempt installation using Scoop
+    if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
+        try {
+            scoop bucket add nerd-fonts
+            scoop install nerd-fonts/CascadiaCode-NF
+        }
+        catch {
+            Write-Host "Could not install CaskaydiaCove NF via Scoop. Trying Choco..."
         }
     }
+    # If Scoop is not available, attempt installation using Choco
+    elseif (Get-Command "choco" -ErrorAction SilentlyContinue) {
+        try {
+            choco install nerd-fonts-cascadiacode -y
+        }
+        catch {
+            Write-Host "Could not install CaskaydiaCove NF via Choco. Trying Winget..."
+        }
+    }
+    # If both Scoop and Choco are not available, use the original method
+    else {
+        # Download and install CaskaydiaCove NF
+        $webClient = New-Object System.Net.WebClient
+        $webClient.DownloadFile("https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/CascadiaCode.zip", ".\CascadiaCode.zip")
 
-    # Clean up
-    Remove-Item -Path ".\CascadiaCode" -Recurse -Force
-    Remove-Item -Path ".\CascadiaCode.zip" -Force
+        Expand-Archive -Path ".\CascadiaCode.zip" -DestinationPath ".\CascadiaCode" -Force
+        $destination = (New-Object -ComObject Shell.Application).Namespace(0x14)
+        Get-ChildItem -Path ".\CascadiaCode" -Recurse -Filter "*.ttf" | ForEach-Object {
+            If (-not(Test-Path "C:\Windows\Fonts\$($_.Name)")) {        
+                # Install font
+                $destination.CopyHere($_.FullName, 0x10)
+            }
+        }
+
+        # Clean up
+        Remove-Item -Path ".\CascadiaCode" -Recurse -Force
+        Remove-Item -Path ".\CascadiaCode.zip" -Force
+    }
 }
 
 
