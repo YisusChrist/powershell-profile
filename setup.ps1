@@ -1,19 +1,19 @@
 #If the file does not exist, create it.
 if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
     try {
-        # Detect Version of Powershell & Create Profile directories if they do not exist.
-        if ($PSVersionTable.PSEdition -eq "Core" ) { 
-            if (!(Test-Path -Path ($env:userprofile + "\Documents\Powershell"))) {
-                New-Item -Path ($env:userprofile + "\Documents\Powershell") -ItemType "directory"
-            }
+        # Detect PowerShell Edition & Create Profile directories if not exist
+        $profilePath = if ($PSVersionTable.PSEdition -eq "Core") {
+            "$env:userprofile\Documents\Powershell"
         }
         elseif ($PSVersionTable.PSEdition -eq "Desktop") {
-            if (!(Test-Path -Path ($env:userprofile + "\Documents\WindowsPowerShell"))) {
-                New-Item -Path ($env:userprofile + "\Documents\WindowsPowerShell") -ItemType "directory"
-            }
+            "$env:userprofile\Documents\WindowsPowerShell"
         }
 
-        Invoke-RestMethod https://github.com/YisusChrist/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -o $PROFILE
+        if (!(Test-Path -Path $profilePath)) {
+            New-Item -Path $profilePath -ItemType Directory
+        }
+
+        Invoke-RestMethod https://github.com/YisusChrist/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
         Write-Host "The profile @ [$PROFILE] has been created."
         write-host "if you want to add any persistent components, please do so at
         [$HOME\Documents\PowerShell\Profile.ps1] as there is an updater in the installed profile which uses the hash to update the profile and will lead to loss of changes."
