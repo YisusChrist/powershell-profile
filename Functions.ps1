@@ -89,6 +89,37 @@ function l. { lsd_custom -ald .* }
 
 function instaloader_custom { instaloader --login=__pole_399188__ --no-profile-pic --no-metadata-json --no-compress-json --no-captions --filename-pattern="{filename}" --highlights --no-video-thumbnails --sanitize-paths $args }
 
+function instagram_dl {
+    Write-Output "Received users: $args"
+
+    foreach ($user in $args) {
+        $username = $user.Split("/")[-1]
+        Write-Output "Downloading media for user: $username..."
+        
+        # Run instaloader_custom command
+        instaloader_custom -F -s $username
+        
+        Write-Output "Downloading reels for user: $username..."
+        
+        # Define the gallery-dl command without cookies
+        $galleryDlCommand = "gallery-dl https://www.instagram.com/$username/reels"
+
+        # Run gallery-dl command without cookies    
+        Invoke-Expression $galleryDlCommand
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "Gallery-dl command failed for user: $username. Retrying with --cookies-from-browser brave."
+            
+            # Retry gallery-dl command with cookies
+            $galleryDlCommandWithCookies = "$galleryDlCommand --cookies-from-browser brave"
+
+            Invoke-Expression $galleryDlCommandWithCookies
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "Gallery-dl command failed because cookies are being used by the browser. Close the browser and try again."
+            }
+        }
+    }
+}
+
 function req2toml { poetry add $( Get-Content requirements.txt ) }
 function pyreq2toml {
     poetry add pipreqs
