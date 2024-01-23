@@ -174,3 +174,27 @@ function watch {
 # Function to measure the time it takes to load this profile
 # Source: https://github.com/IISResetMe/PSProfiler
 function pprofiler { Measure-Script -Path $PROFILE -Top 5 }
+
+function Install-OrSearchScoop {
+    param ($command)
+
+    # If not recognized, prompt the user
+    $userResponse = Read-Host -Prompt "The command '$command' was not found. Do you want to search in the Scoop repository? (Y/N)"
+
+    if ($userResponse -eq 'y' -or $userResponse -eq 'Y') {
+        # Search in Scoop repository
+        Write-Host "Searching in Scoop repository..."
+
+        $searchResult = & scoop search $command
+
+        if ($searchResult) {
+            Write-Host "Package '$command' found in Scoop repository. You may consider installing it using 'scoop install $command'"
+        }
+        else {
+            Write-Host "Package '$command' not found in Scoop repository. It may not be available via Scoop."
+        }
+    }
+    else {
+        Write-Host "User chose not to search in the Scoop repository."
+    }
+}

@@ -34,4 +34,15 @@ Import-Module scoop-completion
 # Enable Stupid Fast Scoop Utils (https://github.com/jewlexx/sfsu)
 Invoke-Expression (&sfsu hook)
 
+# Set the CommandNotFoundAction to automatically call Install-OrSearchScoop
+$ExecutionContext.InvokeCommand.CommandNotFoundAction = {
+    param([System.Management.Automation.CommandNotFoundException]$cmdNotFound)
+
+    # Check if the command name starts with "get-" or ".\"
+    if ($cmdNotFound.Message -notlike "get-*" -and $cmdNotFound.Message -notlike ".\*") {
+        # Call Install-OrSearchScoop with the unrecognized command
+        Install-OrSearchScoop -command $cmdNotFound.Message
+    }
+}
+
 winfetch
