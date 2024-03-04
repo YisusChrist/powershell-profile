@@ -37,7 +37,7 @@ Invoke-Expression (&sfsu hook)
 # Check if the environment variable $HISTORY is set
 if (!$env:HISTORY) {
     # If not, set the $HISTORY variable to the correct value
-    $env:HISTORY = "$APPDATA\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt"
+    $env:HISTORY = "$env:APPDATA\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt"
 }
 
 # Set the CommandNotFoundAction to automatically call Install-OrSearchScoop
