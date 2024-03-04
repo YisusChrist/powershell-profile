@@ -54,3 +54,8 @@ if ((Test-Path alias:cat) -and (Test-CommandExists bat)) {
     Remove-Item alias:cat
     Set-Alias -Name cat -Value bat
 }
+# Replace the PowerShell alias for rm with recycle-bin (https://github.com/sindresorhus/recycle-bin)
+if ((Test-Path alias:rm) -and (Test-CommandExists recycle-bin)) {
+    Remove-Item alias:rm
+    Set-Alias -Name rm -Value recycle-bin
+}
