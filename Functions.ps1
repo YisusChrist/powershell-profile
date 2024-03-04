@@ -90,8 +90,6 @@ function l. { lsd_custom -ald .* }
 function instaloader_custom { instaloader --login=__pole_399188__ --no-profile-pic --no-metadata-json --no-compress-json --no-captions --filename-pattern="{filename}" --highlights --no-video-thumbnails --sanitize-paths $args }
 
 function instagram_dl {
-    Write-Output "Received users: $args"
-
     foreach ($user in $args) {
         $username = $user.Split("/")[-1]
         Write-Output "Downloading media for user: $username..."
@@ -141,6 +139,12 @@ function uptime {
     Else {
         net statistics workstation | Select-String "since" | foreach-object { $_.ToString().Replace('Statistics since ', '') }
     }
+}
+function geoiplookup {
+    $ip = $args[0]
+    $url = "https://ipinfo.io/$ip"
+    $response = Invoke-RestMethod -Uri $url
+    $response
 }
 
 function restart-profile {
