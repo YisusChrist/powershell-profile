@@ -156,6 +156,9 @@ function find-file($name) {
         Write-Output "${place_path}\${_}"
     }
 }
+function func-def($name) {
+    Write-Output (Get-Command $name).Definition
+}
 
 function clist { choco list }
 
