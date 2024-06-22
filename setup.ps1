@@ -22,7 +22,7 @@ function Install-Choco {
     Invoke-Expression ((New-Object System.Net.WebClient).DownloadString($chocoUrl))
 }
 
-function Create-Profile {
+function Set-Profile {
     param (
         [string[]]$urls
     )
@@ -133,17 +133,17 @@ function Install-TerminalIcons {
 
 # Main Script
 
-if (!Get-Command "scoop" -ErrorAction SilentlyContinue) {
+if (-not (Get-Command "scoop" -ErrorAction SilentlyContinue)) {
     Install-Scoop
 }
 
-if (!Get-Command "choco" -ErrorAction SilentlyContinue) {
+if (-not (Get-Command "choco" -ErrorAction SilentlyContinue)) {
     Install-Choco
 }
 
 # Create profile with additional files
 $profileUrls = $profileFiles | ForEach-Object { "$profileUrlBase/$_" }
-Create-Profile -urls $profileUrls
+Set-Profile -urls $profileUrls
 
 Install-OhMyPosh
 
