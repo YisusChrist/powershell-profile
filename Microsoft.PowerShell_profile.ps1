@@ -1,9 +1,3 @@
-# Get the directory of the current $PROFILE script
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-
-. $scriptDir\Functions.ps1
-. $scriptDir\Aliases.ps1
-
 # Oh-My-Posh (https://ohmyposh.dev)
 oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\night-owl.omp.json" | Invoke-Expression
 
@@ -52,3 +46,9 @@ $ExecutionContext.InvokeCommand.CommandNotFoundAction = {
 }
 
 winfetch
+
+# Get the directory of the current $PROFILE script
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+. $scriptDir\Functions.ps1
+. $scriptDir\Aliases.ps1
