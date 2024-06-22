@@ -11,7 +11,9 @@ if (Test-Path($ChocolateyProfile)) {
 }
 
 # Zoxide
-Invoke-Expression (& { (zoxide init powershell | Out-String) })
+if (Test-CommandExists "zoxide") {
+    Invoke-Expression (& { (zoxide init powershell | Out-String) })
+}
 
 # Enable PowerShell Readline module
 Import-Module PSReadLine
@@ -20,13 +22,17 @@ Set-PSReadLineOption -PredictionViewStyle ListView
 Set-PSReadLineOption -EditMode Windows
 
 # Enable tab completion for scoop (https://github.com/Moeologist/scoop-completion)
-Import-Module scoop-completion
+if (Get-Module -ListAvailable -Name scoop-completion) {
+    Import-Module scoop-completion
+}
 
 # Enable Fast Scoop Search (https://github.com/shilangyu/scoop-search)
 #Invoke-Expression (&scoop-search --hook)
 
 # Enable Stupid Fast Scoop Utils (https://github.com/jewlexx/sfsu)
-Invoke-Expression (&sfsu hook)
+if (Test-CommandExists "sfsu") {
+    Invoke-Expression (&sfsu hook)
+}
 
 # Check if the environment variable $HISTORY is set
 if (!$env:HISTORY) {
