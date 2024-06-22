@@ -15,11 +15,39 @@ if (Get-Command "zoxide" -ErrorAction SilentlyContinue) {
     Invoke-Expression (& { (zoxide init powershell | Out-String) })
 }
 
-# Enable PowerShell Readline module
-Import-Module PSReadLine
-Set-PSReadLineOption -PredictionSource History
-Set-PSReadLineOption -PredictionViewStyle ListView
-Set-PSReadLineOption -EditMode Windows
+# https://github.com/PowerShell/PSReadLine/issues/2046#issuecomment-1525710944
+function IsVirtualTerminalProcessingEnabled {
+    $MethodDefinitions = @'
+[DllImport("kernel32.dll", SetLastError = true)]
+public static extern IntPtr GetStdHandle(int nStdHandle);
+[DllImport("kernel32.dll", SetLastError = true)]
+public static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
+'@
+    $Kernel32 = Add-Type -MemberDefinition $MethodDefinitions -Name 'Kernel32' -Namespace 'Win32' -PassThru
+    $hConsoleHandle = $Kernel32::GetStdHandle(-11) # STD_OUTPUT_HANDLE
+    $mode = 0
+    $Kernel32::GetConsoleMode($hConsoleHandle, [ref]$mode) >$null
+    if ($mode -band 0x0004) {
+        # 0x0004 ENABLE_VIRTUAL_TERMINAL_PROCESSING
+        return $true
+    }
+    return $false
+}
+
+function CanUsePredictionSource {
+    return (! [System.Console]::IsOutputRedirected) -and (IsVirtualTerminalProcessingEnabled)
+}
+
+# Enable PowerShell modules
+if (CanUsePredictionSource) { 
+    #Import-Module -Name Terminal-Icons
+    Import-Module PSReadLine
+    Set-PSReadLineOption `
+        -PredictionViewStyle ListView `
+        -PredictionSource History `
+        -HistoryNoDuplicates `
+        -EditMode Windows
+}
 
 # Enable tab completion for scoop (https://github.com/Moeologist/scoop-completion)
 if (Get-Module -ListAvailable -Name scoop-completion) {
