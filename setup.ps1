@@ -13,7 +13,6 @@ function Install-ScoopProfile {
     Write-Host "Installing Scoop..."
     Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
     Invoke-Expression ((New-Object System.Net.WebClient).DownloadString($scoopUrl))
-    Write-Host "Please restart the terminal to use Scoop."
 }
 
 function Install-Choco {
@@ -58,6 +57,13 @@ function Set-Profile {
 }
 
 function Install-OhMyPosh {
+    # Check if Oh-My-Posh is already installed
+    if (Get-Command "oh-my-posh" -ErrorAction SilentlyContinue) {
+        Write-Host "Oh-My-Posh is already installed."
+        return
+    }
+
+    Write-Host "Installing Oh-My-Posh..."
     if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         scoop install main/oh-my-posh
     }
@@ -130,6 +136,7 @@ function Install-FontManually {
 }
 
 function Install-TerminalIcons {
+    Write-Host "Installing Terminal-Icons..."
     Install-Module -Name Terminal-Icons -Repository PSGallery -Force
     Install-Module -Name PSReadLine -Repository PSGallery -Force
 }
