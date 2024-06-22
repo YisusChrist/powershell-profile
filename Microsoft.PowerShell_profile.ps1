@@ -79,7 +79,9 @@ $ExecutionContext.InvokeCommand.CommandNotFoundAction = {
     }
 }
 
-winfetch
+if (Get-Command "winfetch") {
+    winfetch
+}
 
 # Get the directory of the current $PROFILE script
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
