@@ -1,6 +1,7 @@
 #
 # Functions
 #
+
 # Simple function to start a new elevated process. If arguments are supplied then 
 # a single command is started with admin rights; if not then a new admin instance
 # of PowerShell is started.
