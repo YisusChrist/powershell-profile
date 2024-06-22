@@ -1,123 +1,148 @@
-# Scoop Install
-#
-if (!Get-Command "scoop" -ErrorAction SilentlyContinue) {
+# Variables
+$scoopUrl = 'https://get.scoop.sh'
+$chocoUrl = 'https://community.chocolatey.org/install.ps1'
+$profileUrlBase = "https://raw.githubusercontent.com/YisusChrist/powershell-profile/main"
+$profileFiles = @("Microsoft.PowerShell_profile.ps1", "Aliases.ps1", "Functions.ps1")
+$nerdFontRepoUrl = "https://github.com/ryanoasis/nerd-fonts"
+$fontName = "CaskaydiaCove NF"
+$fontFamilyName = "CascadiaCode"
+
+# Functions
+
+function Install-Scoop {
     Write-Host "Installing Scoop..."
-    Set-ExecutionPolicy RemoteSigned -scope CurrentUser
-    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh'))
+    Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString($scoopUrl))
 }
 
-# Choco install
-#
-if (!Get-Command "choco" -ErrorAction SilentlyContinue) {
+function Install-Choco {
     Write-Host "Installing Choco..."
     Set-ExecutionPolicy Bypass -Scope Process -Force
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString($chocoUrl))
 }
 
-# Create $PROFILE
-#
-# If the file does not exist, create it.
-$url = "https://raw.githubusercontent.com/YisusChrist/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
-if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
-    try {
-        # Detect PowerShell Edition & Create Profile directories if not exist
-        $profilePath = if ($PSVersionTable.PSEdition -eq "Core") {
-            "$env:userprofile\Documents\Powershell"
-        }
-        elseif ($PSVersionTable.PSEdition -eq "Desktop") {
-            "$env:userprofile\Documents\WindowsPowerShell"
-        }
+function Create-Profile {
+    param (
+        [string[]]$urls
+    )
 
-        if (!(Test-Path -Path $profilePath)) {
-            New-Item -Path $profilePath -ItemType Directory
-        }
-
-        Invoke-RestMethod $url -OutFile $PROFILE
-        Write-Host "The profile @ [$PROFILE] has been created."
-        Write-Host "if you want to add any persistent components, please do so at
-        [$HOME\Documents\PowerShell\Profile.ps1] as there is an updater in the installed profile which uses the hash to update the profile and will lead to loss of changes."
+    $profilePath = if ($PSVersionTable.PSEdition -eq "Core") {
+        "$env:userprofile\Documents\Powershell"
     }
-    catch {
-        throw $_.Exception.Message
+    elseif ($PSVersionTable.PSEdition -eq "Desktop") {
+        "$env:userprofile\Documents\WindowsPowerShell"
     }
-}
-# If the file already exists, show the message and do nothing.
-else {
-    Get-Item -Path $PROFILE | Move-Item -Destination oldprofile.ps1 -Force
-    Invoke-RestMethod $url -OutFile $PROFILE
-    Write-Host "The profile @ [$PROFILE] has been created and old profile removed."
-    Write-Host "Please back up any persistent components of your old profile to [$HOME\Documents\PowerShell\Profile.ps1] as there is an updater in the installed profile which uses the hash to update the profile and will lead to loss of changes."
-}
-& $profile
 
-# OMP Install
-#
-# Check for Scoop
-if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
-    scoop install main/oh-my-posh
-}
-# Check for Choco
-elseif (Get-Command "choco" -ErrorAction SilentlyContinue) {
-    choco install oh-my-posh -y
-}
-# Check for Winget
-elseif (Get-Command "winget" -ErrorAction SilentlyContinue) {
-    winget install -e --accept-source-agreements --accept-package-agreements JanDeDobbeleer.OhMyPosh
-}
-else {
-    Write-Host "Please install Scoop, Choco, or Winget to proceed with the installation."
+    if (!(Test-Path -Path $profilePath)) {
+        New-Item -Path $profilePath -ItemType Directory
+    }
+
+    foreach ($url in $urls) {
+        $fileName = [System.IO.Path]::GetFileName($url)
+        $destinationPath = Join-Path -Path $profilePath -ChildPath $fileName
+
+        if (Test-Path -Path $destinationPath) {
+            Move-Item -Path $destinationPath -Destination (Join-Path -Path $profilePath -ChildPath "old_$fileName") -Force
+        }
+
+        Invoke-RestMethod -Uri $url -OutFile $destinationPath
+        Write-Host "The file $fileName has been created/updated at $destinationPath."
+    }
+
+    Write-Host "Please add any persistent components to [$profilePath\Profile.ps1] as there is an updater in the installed profile which uses the hash to update the profile and will lead to loss of changes."
+    & (Join-Path -Path $profilePath -ChildPath "Microsoft.PowerShell_profile.ps1")
 }
 
-# Font Install
-#
-# Get all installed font families
-[void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
-$fontFamilies = (New-Object System.Drawing.Text.InstalledFontCollection).Families
-
-# Check if CaskaydiaCove NF is installed
-if ($fontFamilies -notcontains "CaskaydiaCove NF") {
-    # Attempt installation using Scoop
+function Install-OhMyPosh {
     if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
-        try {
-            scoop bucket add nerd-fonts
-            scoop install nerd-fonts/CascadiaCode-NF
-        }
-        catch {
-            Write-Host "Could not install CaskaydiaCove NF via Scoop. Trying Choco..."
-        }
+        scoop install main/oh-my-posh
     }
-    # If Scoop is not available, attempt installation using Choco
     elseif (Get-Command "choco" -ErrorAction SilentlyContinue) {
-        try {
-            choco install nerd-fonts-cascadiacode -y
-        }
-        catch {
-            Write-Host "Could not install CaskaydiaCove NF via Choco. Trying Winget..."
-        }
+        choco install oh-my-posh -y
     }
-    # If both Scoop and Choco are not available, use the original method
+    elseif (Get-Command "winget" -ErrorAction SilentlyContinue) {
+        winget install -e --accept-source-agreements --accept-package-agreements JanDeDobbeleer.OhMyPosh
+    }
     else {
-        # Download and install CaskaydiaCove NF
-        $webClient = New-Object System.Net.WebClient
-        $webClient.DownloadFile("https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/CascadiaCode.zip", ".\CascadiaCode.zip")
+        Write-Host "Please install Scoop, Choco, or Winget to proceed with the installation."
+    }
+}
 
-        Expand-Archive -Path ".\CascadiaCode.zip" -DestinationPath ".\CascadiaCode" -Force
-        $destination = (New-Object -ComObject Shell.Application).Namespace(0x14)
-        Get-ChildItem -Path ".\CascadiaCode" -Recurse -Filter "*.ttf" | ForEach-Object {
-            If (-not(Test-Path "C:\Windows\Fonts\$($_.Name)")) {        
-                $destination.CopyHere($_.FullName, 0x10)
+function Install-Font {
+    [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
+    $fontFamilies = (New-Object System.Drawing.Text.InstalledFontCollection).Families
+
+    if ($fontFamilies -notcontains $fontName) {
+        if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
+            try {
+                scoop bucket add nerd-fonts
+                scoop install nerd-fonts/$fontFamilyName-NF
+            }
+            catch {
+                Write-Host "Could not install $fontName via Scoop. Trying Choco..."
             }
         }
-
-        # Clean up
-        Remove-Item -Path ".\CascadiaCode" -Recurse -Force
-        Remove-Item -Path ".\CascadiaCode.zip" -Force
+        elseif (Get-Command "choco" -ErrorAction SilentlyContinue) {
+            try {
+                choco install nerd-fonts-$fontFamilyName -y
+            }
+            catch {
+                Write-Host "Could not install $fontName via Choco. Trying Winget..."
+            }
+        }
+        else {
+            Install-FontManually
+        }
     }
 }
 
+function Install-FontManually {
+    $releaseUrl = "$nerdFontRepoUrl/releases/latest"
+    $htmlContent = Invoke-RestMethod -Uri $releaseUrl
+    $regex = '<title>Release v([\d.]+) · ryanoasis/nerd-fonts · GitHub</title>'
+    $latestVersion = [regex]::Match($htmlContent, $regex).Groups[1].Value
+    $downloadUrl = "$nerdFontRepoUrl/releases/download/$latestVersion/$fontFamilyName.zip"
 
-# Terminal Icons Install
-#
-Install-Module -Name Terminal-Icons -Repository PSGallery -Force
-Install-Module -Name PSReadLine -Repository PSGallery -Force
+    $webClient = New-Object System.Net.WebClient
+    $webClient.DownloadFile($downloadUrl, ".\$fontFamilyName.zip")
+
+    Expand-Archive -Path ".\$fontFamilyName.zip" -DestinationPath ".\$fontFamilyName" -Force
+
+    $destination = (New-Object -ComObject Shell.Application).Namespace(0x14)
+    Get-ChildItem -Path ".\$fontFamilyName" -Recurse -Filter "*.ttf" | ForEach-Object {
+        If (-not(Test-Path "C:\Windows\Fonts\$($_.Name)")) {        
+            $destination.CopyHere($_.FullName, 0x10)
+        }
+    }
+
+    Remove-Item -Path ".\$fontFamilyName" -Recurse -Force
+    Remove-Item -Path ".\$fontFamilyName.zip" -Force
+
+    Write-Host "$fontName font has been installed/updated to version $latestVersion."
+}
+
+function Install-TerminalIcons {
+    Install-Module -Name Terminal-Icons -Repository PSGallery -Force
+    Install-Module -Name PSReadLine -Repository PSGallery -Force
+}
+
+# Main Script
+
+if (!Get-Command "scoop" -ErrorAction SilentlyContinue) {
+    Install-Scoop
+}
+
+if (!Get-Command "choco" -ErrorAction SilentlyContinue) {
+    Install-Choco
+}
+
+# Create profile with additional files
+$profileUrls = $profileFiles | ForEach-Object { "$profileUrlBase/$_" }
+Create-Profile -urls $profileUrls
+
+Install-OhMyPosh
+
+Install-Font
+
+Install-TerminalIcons
