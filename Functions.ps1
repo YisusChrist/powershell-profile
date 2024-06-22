@@ -87,7 +87,19 @@ function lla { lsd_custom -Al }
 function lt { lsd_custom --tree }
 function l. { lsd_custom -ald .* }
 
-function instaloader_custom { instaloader --login=__pole_399188__ --no-profile-pic --no-metadata-json --no-compress-json --no-captions --filename-pattern="{filename}" --highlights --no-video-thumbnails --sanitize-paths $args }
+function instaloader_custom {
+    instaloader `
+        --login=__pole_399188__ `
+        --no-profile-pic `
+        --no-metadata-json `
+        --no-compress-json `
+        --no-captions `
+        --filename-pattern="{filename}" `
+        --highlights `
+        --no-video-thumbnails `
+        --sanitize-paths `
+        $args
+}
 
 function instagram_dl {
     foreach ($user in $args) {
