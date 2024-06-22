@@ -4,6 +4,8 @@ function Test-Profile {
         $oldhash = Get-FileHash $PROFILE
         Invoke-RestMethod $url -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1"
         $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
+        Write-Host $newhash
+        Write-Host $oldhash
         return $newhash -eq $oldhash
     }
     catch {
@@ -65,6 +67,9 @@ function Test-Installation {
 
     return $targetInstalled
 }
+
+# Reload the profile
+. $PROFILE
 
 # Verify Scoop Installation
 $scoopInstalled = Test-Installation -target "scoop" -type "command"
