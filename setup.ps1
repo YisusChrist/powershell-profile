@@ -27,11 +27,13 @@ function Set-Profile {
         [string[]]$urls
     )
 
+    $documentsPath = [System.Environment]::GetFolderPath('MyDocuments')
+
     $profilePath = if ($PSVersionTable.PSEdition -eq "Core") {
-        "$env:userprofile\Documents\Powershell"
+        Join-Path -Path $documentsPath -ChildPath "PowerShell"
     }
     elseif ($PSVersionTable.PSEdition -eq "Desktop") {
-        "$env:userprofile\Documents\WindowsPowerShell"
+        Join-Path -Path $documentsPath -ChildPath "WindowsPowerShell"
     }
 
     if (!(Test-Path -Path $profilePath)) {
