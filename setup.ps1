@@ -9,10 +9,11 @@ $fontFamilyName = "CascadiaCode"
 
 # Functions
 
-function Install-Scoop {
+function Install-ScoopProfile {
     Write-Host "Installing Scoop..."
     Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
     Invoke-Expression ((New-Object System.Net.WebClient).DownloadString($scoopUrl))
+    Write-Host "Please restart the terminal to use Scoop."
 }
 
 function Install-Choco {
@@ -136,7 +137,7 @@ function Install-TerminalIcons {
 # Main Script
 
 if (-not (Get-Command "scoop" -ErrorAction SilentlyContinue)) {
-    Install-Scoop
+    Install-ScoopProfile
 }
 
 if (-not (Get-Command "choco" -ErrorAction SilentlyContinue)) {
