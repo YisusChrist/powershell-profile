@@ -18,8 +18,9 @@ jobs:
       - name: Setup scoop
         uses: MinoruSekine/setup-scoop@v4
         with:
+          buckets: main extras
           install_scoop: "true"
-          apps: oh-my-posh
+          apps: oh_my_posh
 
       - name: Run setup
         run: |
