@@ -24,7 +24,6 @@ function Set-ConditionalAlias {
         else {
             Set-Alias -Name $aliasName -Value $aliasValue
         }
-        Write-Host "Alias '$aliasName' has been set to '$aliasValue'."
     }
     else {
         Write-Host "Command '$command' does not exist."
