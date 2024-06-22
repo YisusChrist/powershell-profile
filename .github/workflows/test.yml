@@ -15,6 +15,11 @@ jobs:
 
       #- name: Set up PowerShell
       #  uses: Microsoft/setup-powershell@v1
+      - name: Setup scoop
+        uses: MinoruSekine/setup-scoop@v4
+        with:
+          install_scoop: "true"
+          apps: oh-my-posh
 
       - name: Run setup
         run: |
