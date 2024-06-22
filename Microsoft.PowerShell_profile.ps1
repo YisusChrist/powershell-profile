@@ -11,7 +11,7 @@ if (Test-Path($ChocolateyProfile)) {
 }
 
 # Zoxide
-if (Test-CommandExists "zoxide") {
+if (Get-Command "zoxide" -ErrorAction SilentlyContinue) {
     Invoke-Expression (& { (zoxide init powershell | Out-String) })
 }
 
@@ -30,7 +30,7 @@ if (Get-Module -ListAvailable -Name scoop-completion) {
 #Invoke-Expression (&scoop-search --hook)
 
 # Enable Stupid Fast Scoop Utils (https://github.com/jewlexx/sfsu)
-if (Test-CommandExists "sfsu") {
+if (Get-Command "sfsu" -ErrorAction SilentlyContinue) {
     Invoke-Expression (&sfsu hook)
 }
 
