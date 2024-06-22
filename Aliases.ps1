@@ -1,6 +1,36 @@
 #
 # Aliases
 #
+
+# Function to set/replace an alias if the command exists
+function Set-ConditionalAlias {
+    param (
+        [string]$command,
+        [string]$aliasName,
+        [string]$aliasValue = $command,
+        [string]$option
+    )
+
+    # Check if the command exists
+    if (Get-Command $command -ErrorAction SilentlyContinue) {
+        # Remove the existing alias if it exists
+        if (Test-Path "alias:$aliasName") {
+            Remove-Item "alias:$aliasName" -Force
+        }
+        # Set the new alias
+        if ($option) {
+            Set-Alias -Name $aliasName -Value $aliasValue -Option $option
+        }
+        else {
+            Set-Alias -Name $aliasName -Value $aliasValue
+        }
+        Write-Host "Alias '$aliasName' has been set to '$aliasValue'."
+    }
+    else {
+        Write-Host "Command '$command' does not exist."
+    }
+}
+
 # If your favorite editor is not here, add an elseif and ensure that the directory it is installed in exists in your $env:Path
 #
 if (Test-CommandExists nvim) {
@@ -34,38 +64,17 @@ Set-Alias -Name vim -Value $EDITOR
 Set-Alias -Name su -Value admin
 Set-Alias -Name sudo -Value admin
 
-# Remove PowerShell alias for curl (Invoke-WebRequest) so that we can use the
-# curl alias for the actual curl executable (https://curl.se/windows)
-if ((Test-Path alias:curl) -and (Test-CommandExists curl)) {
-    Remove-Item alias:curl
-}
-# Remove PowerShell alias for wget (Invoke-WebRequest) so that we can use the
-# wget alias for the actual wget executable (https://eternallybored.org/misc/wget)
-if ((Test-Path alias:wget) -and (Test-CommandExists wget)) {
-    Remove-Item alias:wget
-}
-# Replace the PowerShell alias for where with which (https://gnuwin32.sourceforge.net/packages/which.htm)
-if ((Test-Path alias:where) -and (Test-CommandExists which)) {
-    Remove-Item alias:where -Force
-    Set-Alias -Name where -Value which
-}
+# Remove PowerShell alias for curl so that we can use the actual curl executable
+Set-ConditionalAlias -command "curl" -aliasName "curl"
+# Remove PowerShell alias for wget so that we can use the actual wget executable
+Set-ConditionalAlias -command "wget" -aliasName "wget"
+# Replace the PowerShell alias for where with which
+Set-ConditionalAlias -command "which" -aliasName "where"
 # Replace the PowerShell alias for cd with zoxide
-if ((Test-Path alias:cd) -and (Test-CommandExists z)) {
-    Remove-Item alias:cd
-    Set-Alias -Name cd -Value z
-}
+Set-ConditionalAlias -command "z" -aliasName "cd" -aliasValue "z"
 # Replace the PowerShell alias for ls with lsd
-if ((Test-Path alias:ls) -and (Test-CommandExists lsd)) {
-    Remove-Item alias:ls
-    Set-Alias -Name ls -Value lsd_custom -Option AllScope
-}
+Set-ConditionalAlias -command "lsd" -aliasName "ls" -aliasValue "lsd_custom" -option AllScope
 # Replace the PowerShell alias for cat with bat
-if ((Test-Path alias:cat) -and (Test-CommandExists bat)) {
-    Remove-Item alias:cat
-    Set-Alias -Name cat -Value bat
-}
-# Replace the PowerShell alias for rm with recycle-bin (https://github.com/sindresorhus/recycle-bin)
-if ((Test-Path alias:rm) -and (Test-CommandExists recycle-bin)) {
-    Remove-Item alias:rm
-    Set-Alias -Name rm -Value recycle-bin
-}
+Set-ConditionalAlias -command "bat" -aliasName "cat" -aliasValue "bat"
+# Replace the PowerShell alias for rm with recycle-bin
+Set-ConditionalAlias -command "recycle-bin" -aliasName "rm" -aliasValue "recycle-bin"
