@@ -39,6 +39,16 @@ Set-Alias -Name sudo -Value admin
 if ((Test-Path alias:curl) -and (Test-CommandExists curl)) {
     Remove-Item alias:curl
 }
+# Remove PowerShell alias for wget (Invoke-WebRequest) so that we can use the
+# wget alias for the actual wget executable (https://eternallybored.org/misc/wget)
+if ((Test-Path alias:wget) -and (Test-CommandExists wget)) {
+    Remove-Item alias:wget
+}
+# Replace the PowerShell alias for where with which (https://gnuwin32.sourceforge.net/packages/which.htm)
+if ((Test-Path alias:where) -and (Test-CommandExists which)) {
+    Remove-Item alias:where -Force
+    Set-Alias -Name where -Value which
+}
 # Replace the PowerShell alias for cd with zoxide
 if ((Test-Path alias:cd) -and (Test-CommandExists z)) {
     Remove-Item alias:cd
