@@ -73,27 +73,31 @@ function Install-Font {
     [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
     $fontFamilies = (New-Object System.Drawing.Text.InstalledFontCollection).Families
 
-    if ($fontFamilies -notcontains $fontName) {
-        if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
-            try {
-                scoop bucket add nerd-fonts
-                scoop install nerd-fonts/$fontFamilyName-NF
-            }
-            catch {
-                Write-Host "Could not install $fontName via Scoop. Trying Choco..."
-            }
+    if ($fontFamilies -contains $fontName) {
+        Write-Host "$fontName font is already installed."
+        return
+    }
+
+    Write-Host "Installing $fontName font..."
+    if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
+        try {
+            scoop bucket add nerd-fonts
+            scoop install nerd-fonts/$fontFamilyName-NF
         }
-        elseif (Get-Command "choco" -ErrorAction SilentlyContinue) {
-            try {
-                choco install nerd-fonts-$fontFamilyName -y
-            }
-            catch {
-                Write-Host "Could not install $fontName via Choco. Trying Winget..."
-            }
+        catch {
+            Write-Host "Could not install $fontName via Scoop. Trying Choco..."
         }
-        else {
-            Install-FontManually
+    }
+    elseif (Get-Command "choco" -ErrorAction SilentlyContinue) {
+        try {
+            choco install nerd-fonts-$fontFamilyName -y
         }
+        catch {
+            Write-Host "Could not install $fontName via Choco. Trying Winget..."
+        }
+    }
+    else {
+        Install-FontManually
     }
 }
 
