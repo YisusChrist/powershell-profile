@@ -79,7 +79,7 @@ $ExecutionContext.InvokeCommand.CommandNotFoundAction = {
     }
 }
 
-if (Get-Command "winfetch") {
+if (Get-Command "winfetch"  -ErrorAction SilentlyContinue) {
     winfetch
 }
 
