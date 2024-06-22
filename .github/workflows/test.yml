@@ -20,7 +20,7 @@ jobs:
         with:
           buckets: main extras
           install_scoop: "true"
-          apps: oh_my_posh
+          apps: "oh-my-posh"
 
       - name: Run setup
         run: |
