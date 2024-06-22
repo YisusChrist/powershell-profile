@@ -151,12 +151,12 @@ if (-not (Get-Command "choco" -ErrorAction SilentlyContinue)) {
     Install-Choco
 }
 
-# Create profile with additional files
-$profileUrls = $profileFiles | ForEach-Object { "$profileUrlBase/$_" }
-Set-Profile -urls $profileUrls
-
 Install-OhMyPosh
 
 Install-Font
 
 Install-TerminalIcons
+
+# Create profile with additional files
+$profileUrls = $profileFiles | ForEach-Object { "$profileUrlBase/$_" }
+Set-Profile -urls $profileUrls
