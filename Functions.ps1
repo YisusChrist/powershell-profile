@@ -103,29 +103,53 @@ function instaloader_custom {
 }
 
 function instagram_dl {
-    foreach ($user in $args) {
-        $username = $user.Split("/")[-1]
-        Write-Output "Downloading media for user: $username..."
-        
-        # Run instaloader_custom command
-        instaloader_custom -F -s $username
-        
-        Write-Output "Downloading reels for user: $username..."
-        
-        # Define the gallery-dl command without cookies
-        $galleryDlCommand = "gallery-dl https://www.instagram.com/$username/reels"
+    param (
+        [Parameter(ValueFromPipeline=$true)]
+        [string]$user,
 
-        # Run gallery-dl command without cookies    
-        Invoke-Expression $galleryDlCommand
-        if ($LASTEXITCODE -ne 0) {
-            Write-Warning "Gallery-dl command failed for user: $username. Retrying with --cookies-from-browser brave."
+        [Parameter(Mandatory=$false, ValueFromRemainingArguments=$true)]
+        [string[]]$users
+    )
+
+    begin {
+        $allUsers = @()
+    }
+
+    process {
+        if ($null -ne $user) {
+            $allUsers += $user
+        }
+        if ($null -ne $users) {
+            $allUsers += $users
+        }
+    }
+
+    end {
+        Write-Output "Downloading media for the following users: $allUsers"
+        
+        foreach ($username in $allUsers) {
+            Write-Output "Downloading media for user: $username..."
             
-            # Retry gallery-dl command with cookies
-            $galleryDlCommandWithCookies = "$galleryDlCommand --cookies-from-browser brave"
+            # Run instaloader_custom command
+            instaloader_custom -F -s $username
+            
+            Write-Output "Downloading reels for user: $username..."
+            
+            # Define the gallery-dl command without cookies
+            $galleryDlCommand = "gallery-dl https://www.instagram.com/$username/reels"
 
-            Invoke-Expression $galleryDlCommandWithCookies
+            # Run gallery-dl command without cookies    
+            Invoke-Expression $galleryDlCommand
             if ($LASTEXITCODE -ne 0) {
-                Write-Warning "Gallery-dl command failed because cookies are being used by the browser. Close the browser and try again."
+                Write-Warning "Gallery-dl command failed for user: $username. Retrying with --cookies-from-browser brave."
+                
+                # Retry gallery-dl command with cookies
+                $galleryDlCommandWithCookies = "$galleryDlCommand --cookies-from-browser brave"
+
+                Invoke-Expression $galleryDlCommandWithCookies
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Warning "Gallery-dl command failed because cookies are being used by the browser. Close the browser and try again."
+                }
             }
         }
     }
