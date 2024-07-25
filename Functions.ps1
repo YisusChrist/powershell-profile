@@ -215,6 +215,16 @@ function watch {
     }
 }
 
+function remove-empty-folders {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$path
+    )
+
+    Write-Host "Removing empty folders in $path..."
+    robocopy $path $path /S /MOVE
+} 
+
 # Function to measure the time it takes to load this profile
 # Source: https://github.com/IISResetMe/PSProfiler
 function pprofiler { Measure-Script -Path $PROFILE -Top 5 }
