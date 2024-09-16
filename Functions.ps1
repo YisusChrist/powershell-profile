@@ -201,17 +201,186 @@ function clist { choco list }
 
 function e { exit }
 
+<#
+.SYNOPSIS
+Executes a command periodically and displays the output
+
+.PARAMETERS
+-n, --interval <seconds>   Specify update interval (default: 2 seconds)
+-d, --differences          Highlight differences between updates
+-g, --chgexit              Exit when the output changes
+-t, --no-title             Don't show the header
+-b, --beep                 Beep if the command has an error
+-p, --precise              Attempt to run command at exact intervals
+-e, --errexit              Exit on command error
+-c, --color                Interpret ANSI color sequences
+-x, --exec                 Pass the command to exec
+-w, --no-linewrap          Disable line wrapping
+-h, --help                 Display this help and exit
+-v, --version              Output version information and exit
+.LINK
+https://github.com/YisusChrist/watch-powershell
+#>
 function watch {
-    Param ($command)
-    # Check if the command exists
-    if (-not (Test-CommandExists $command) -OR $null -eq $command) {
-        Write-Error "Command '$command' does not exist"
+    Param (
+        [string[]]$Args
+    )
+
+    $interval = 2
+    $differences = $false
+    $chgexit = $false
+    $noTitle = $false
+    $beep = $false
+    $precise = $false
+    $errexit = $false
+    $color = $false
+    $exec = $false
+    $noLinewrap = $false
+    $help = $false
+    $version = $false
+    $command = @()
+
+    Write-Host "watch: $Args"
+
+    for ($i = 0; $i -lt $Args.Length; $i++) {
+        Write-Host "$i Arg: $($Args[$i])"
+        switch ($Args[$i]) {
+            '-n' {
+                $interval = [int]$Args[++$i]
+            }
+            '--interval' {
+                $interval = [int]$Args[++$i]
+            }
+            '-d' { $differences = $true }
+            '--differences' { $differences = $true }
+            '-g' { $chgexit = $true }
+            '--chgexit' { $chgexit = $true }
+            '-t' { $noTitle = $true }
+            '--no-title' { $noTitle = $true }
+            '-b' { $beep = $true }
+            '--beep' { $beep = $true }
+            '-p' { $precise = $true }
+            '--precise' { $precise = $true }
+            '-e' { $errexit = $true }
+            '--errexit' { $errexit = $true }
+            '-c' { $color = $true }
+            '--color' { $color = $true }
+            '-x' { $exec = $true }
+            '--exec' { $exec = $true }
+            '-w' { $noLinewrap = $true }
+            '--no-linewrap' { $noLinewrap = $true }
+            '-h' { $help = $true }
+            '--help' { $help = $true }
+            '-v' { $version = $true }
+            '--version' { $version = $true }
+            default {
+                # Collect all remaining arguments as the command
+                $command += $Args[$i]
+            }
+        }
+    }
+
+    # Extract the comamnd arguments
+    $commandString = $command -join " "
+
+    for ($i = 0; $i -lt $command.Length; $i++) {
+        if ($command[$i] -eq "'") {
+            $command = $command -replace "'", "''"
+        }
+    }
+
+    if ($Help) {
+        Write-Host "Usage: " -NoNewline
+        Write-Host "watch" -ForegroundColor Green
+        Write-Host "Options:"
+        Write-Host "  -n, --interval <seconds>   " -ForegroundColor Cyan -NoNewline
+        Write-Host "Specify update interval (default: 2 seconds)"
+        Write-Host "  -d, --differences          " -ForegroundColor Cyan -NoNewline
+        Write-Host "Highlight differences between updates"
+        Write-Host "  -g, --chgexit              " -ForegroundColor Cyan -NoNewline
+        Write-Host "Exit when the output changes"
+        Write-Host "  -t, --no-title             " -ForegroundColor Cyan -NoNewline
+        Write-Host "Don't show the header"
+        Write-Host "  -b, --beep                 " -ForegroundColor Cyan -NoNewline
+        Write-Host "Beep if the command has an error"
+        Write-Host "  -p, --precise              " -ForegroundColor Cyan -NoNewline
+        Write-Host "Attempt to run command at exact intervals"
+        Write-Host "  -e, --errexit              " -ForegroundColor Cyan -NoNewline
+        Write-Host "Exit on command error"
+        Write-Host "  -c, --color                " -ForegroundColor Cyan -NoNewline
+        Write-Host "Interpret ANSI color sequences"
+        Write-Host "  -x, --exec                 " -ForegroundColor Cyan -NoNewline
+        Write-Host "Pass the command to exec"
+        Write-Host "  -w, --no-linewrap          " -ForegroundColor Cyan -NoNewline
+        Write-Host "Disable line wrapping"
+        Write-Host "  -h, --help                 " -ForegroundColor Cyan -NoNewline
+        Write-Host "Display this help and exit"
+        Write-Host "  -v, --version              " -ForegroundColor Cyan -NoNewline
+        Write-Host "Output version information and exit"
         return
     }
+
+    if ($Version) {
+        Write-Host "watch " -ForegroundColor Green -NoNewline
+        Write-Host "1.0"
+        Write-Host "Written by YisusChrist" -ForegroundColor Cyan
+        return
+    }
+
+    $previousOutput = ""
+    $runTime = Get-Date
+
     while ($true) {
-        $command
-        Start-Sleep -Seconds 1
-        Clear-Host
+        $output = & $commandString
+        $exitCode = $LASTEXITCODE
+
+        if ($chgexit -and $previousOutput -ne "" -and $previousOutput -ne $output) {
+            break
+        }
+
+        if ($errexit -and $exitCode -ne 0) {
+            Write-Host "Command exited with error code $exitCode. Press any key to exit."
+            [void][System.Console]::ReadKey($true)
+            break
+        }
+
+        if ($noTitle -eq $false) {
+            Clear-Host
+            $currentTime = Get-Date
+            Write-Host "Every $interval s: $command"
+            Write-Host "Current time: $currentTime"
+            Write-Host ""
+        }
+
+        if ($differences -and $previousOutput -ne "") {
+            $previousLines = $previousOutput -split "`n"
+            $currentLines = $output -split "`n"
+            for ($i = 0; $i -lt [Math]::Max($previousLines.Count, $currentLines.Count); $i++) {
+                if ($i -ge $previousLines.Count -or $i -ge $currentLines.Count -or $previousLines[$i] -ne $currentLines[$i]) {
+                    Write-Host "$($currentLines[$i])" -ForegroundColor Red
+                } else {
+                    Write-Host "$($currentLines[$i])"
+                }
+            }
+        } else {
+            Write-Output "$output"
+        }
+
+        $previousOutput = $output
+
+        if ($beep -and $exitCode -ne 0) {
+            [console]::beep(1000, 500)
+        }
+        
+        if ($precise) {
+            $runTime = $runTime.AddSeconds($interval)
+            $sleepTime = $runTime.Subtract((Get-Date)).TotalMilliseconds
+            if ($sleepTime -gt 0) {
+                Start-Sleep -Milliseconds $sleepTime
+            }
+        } else {
+            Start-Sleep -Seconds $interval
+        }
     }
 }
 
