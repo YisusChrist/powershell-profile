@@ -252,3 +252,52 @@ function Install-OrSearchScoop {
         Write-Host "User chose not to search in the Scoop repository."
     }
 }
+
+function Get-FolderSize {
+    param(
+        [string]$FolderPath
+    )
+    if (Test-Path $FolderPath) {
+        $files = Get-ChildItem -Recurse -File -Path $FolderPath
+        $totalSize = ($files | Measure-Object -Property Length -Sum).Sum
+        $fileCount = $files.Count
+        $totalSizeInMB = [math]::round($totalSize / 1MB, 2)
+
+        Write-Host "Total: $fileCount files, $totalSizeInMB MiB in '$FolderPath'" -ForegroundColor Yellow
+    } else {
+        Write-Host "Folder '$FolderPath' does not exist." -ForegroundColor Red
+    }
+}
+
+function remove_folder {
+    param (
+        [string]$folder
+    )
+
+    # Check if the folder exists
+    if (Test-Path $folder) {
+        # Remove the folder
+        Remove-Item -Recurse -Force -LiteralPath $folder 2> $null
+    }
+    else {
+        Write-Host "Folder '$folder' does not exist." -ForegroundColor Red
+    }
+}
+
+function clean_temp {
+    $tempFolders = @($env:TEMP, "$env:WINDIR\Temp")
+
+    foreach ($folder in $tempFolders) {
+        Write-Host "Cleaning temporary folder: '$folder'"
+        Get-FolderSize -FolderPath $folder
+        remove_folder $folder
+        Write-Host "Folder '$folder' cleaned." -ForegroundColor Green
+    }
+}
+
+function scoop_clean {
+    Write-Host "Cleaning Scoop cache..."
+    scoop cache
+    remove_folder $env:SCOOP\cache
+    scoop cleanup *
+}
