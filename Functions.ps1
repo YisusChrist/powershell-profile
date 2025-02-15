@@ -467,6 +467,6 @@ function clean_temp {
 function scoop_clean {
     Write-Host "Cleaning Scoop cache..."
     scoop cache
-    remove_folder $env:SCOOP\cache
-    scoop cleanup *
+    scoop cache rm *
+    scoop cleanup --all --cache
 }
